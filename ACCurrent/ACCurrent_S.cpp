@@ -20,13 +20,13 @@ void ACCurrent_S::setup()
     vref = readVref();
 }
 
-void ACCurrent_S::setHandleExceed(HandleRaw handleExceed, float maxAccValue)
+void ACCurrent_S::setHandleExceed(HandleFunc handleExceed, float maxAccValue)
 {
     this->_handleExceed = handleExceed;
     this->_maxAccValue = maxAccValue;
 }
 
-void ACCurrent_S::setHandleLess(HandleRaw handleLess, float minAccValue)
+void ACCurrent_S::setHandleLess(HandleFunc handleLess, float minAccValue)
 {
     this->_handleLess = handleLess;
     this->_minAccValue = minAccValue;
