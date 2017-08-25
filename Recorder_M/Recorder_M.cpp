@@ -4,6 +4,8 @@
  Author:	amy.liao@dfrobot.com
  Company:	DFRobot
 */
+#ifndef _RECORDER_M_
+#define _RECORDER_M_
 
 #include "Recorder_M.h"
 
@@ -26,3 +28,5 @@ void Recorder_M::play()
     digitalWrite(_playPin,HIGH);
     delay(1000);
 }
+
+#endif

@@ -27,7 +27,7 @@ void LEDString_M::Brightness(uint8_t bright)
     analogWrite(_LightPin, _bright);
 }
 
-void LEDString_M::breath(int speed = 10)
+void LEDString_M::breath(int speed)
 {
     uint8_t t;
     _speed = speed;
