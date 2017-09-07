@@ -1,7 +1,6 @@
 #ifndef _GENERALANALOGSENSOR_H_ 
 #define _GENERALANALOGSENSOR_H_ 
 
-
 typedef void (*pFunc)(int value);
 
 class GeneralAnalogSensor
@@ -13,7 +12,8 @@ public:
     void setPin(uint8_t pin, uint8_t mode);
     int  getValue();
     void setValue(int value);
-    void update(unsigned long interval = 0);
+    void setInterval(unsigned long interval);
+    void update();
     void setHandleM(pFunc handleM,int maxvalue);
     void setHandleL(pFunc handleL,int minvalue);
 
@@ -24,7 +24,7 @@ private:
     int _minValue;
     pFunc _handleM;
     pFunc _handleL;
-    unsigned long _lastTime;
+    unsigned long _interval;
 
     void handleCallback();
 

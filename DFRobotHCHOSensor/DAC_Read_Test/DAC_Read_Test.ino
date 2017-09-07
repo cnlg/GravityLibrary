@@ -26,17 +26,18 @@
 int SensorPin = A2;		//this pin read the analog voltage from the HCHO sensor
 float verf = 5.0;				//voltage on AREF pin
 
-DFRobotHCHOSensor hcho(SensorPin ,verf);
+DFRobotHCHOSensor hcho;
 
 void setup()
 {
     Serial.begin(9600);
-    hcho.setup();
+    hcho.setPin(SensorPin);
+    hcho.setRef(verf); 
 }
 void loop()
 {  
     hcho.update();
-    Serial.print(hcho.getPPM());
+    Serial.print(hcho.getValue());
     Serial.println("ppm");
     delay(1000);
 }

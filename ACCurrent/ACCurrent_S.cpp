@@ -1,7 +1,7 @@
 #include "ACCurrent_S.h"
 #include "Arduino.h"
 
-ACCurrent_S::ACCurrent_S():vref(0)
+ACCurrent_S::ACCurrent_S():_vref(0),_accurrtntValue(0),_interval(0)
 {
 }
 
@@ -11,26 +11,28 @@ ACCurrent_S::~ACCurrent_S()
     
 void ACCurrent_S::setPin(int pin)
 {
-    acPin = pin;
+    this->_pin = pin;
+    pinMode(this->_pin,INPUT);
 }
 
 void ACCurrent_S::setup()
 {
-    pinMode(this->acPin,INPUT);
-    vref = readVref();
+    this->_vref = readVref();
 }
 
-void ACCurrent_S::setHandleExceed(HandleFunc handleExceed, float maxAccValue)
+void ACCurrent_S::setInterval(unsigned long interval)
 {
-    this->_handleExceed = handleExceed;
-    this->_maxAccValue = maxAccValue;
+    this->_interval = interval;
 }
 
-void ACCurrent_S::setHandleLess(HandleFunc handleLess, float minAccValue)
+//********************************************************************************************
+// 函数名称: getValue()
+// 函数说明：获取传感器数据***********************************************
+float ACCurrent_S::getValue()
 {
-    this->_handleLess = handleLess;
-    this->_minAccValue = minAccValue;
+    return this->_accurrtntValue;
 }
+
 
 float ACCurrent_S::readVref()
 {
@@ -62,32 +64,34 @@ float ACCurrent_S::readVref()
 
 void ACCurrent_S::update()
 {
+    static unsigned long previousTime = millis();
+
+    if(this->_interval == 0)
+    {
+        calculateAcc();
+    }
+    else if(millis() - previousTime > this->_interval)
+    {
+        previousTime = millis();
+        calculateAcc();
+    }
+}
+
+void ACCurrent_S::calculateAcc()
+{
     unsigned int peakVoltage = 0;  
     unsigned int voltageVirtualValue = 0;  //Vrms
     for (int i = 0; i < 5; i++)
     {
-    peakVoltage += analogRead(this->acPin);   //read peak voltage
-    delay(1);
+        peakVoltage += analogRead(this->_pin);   //read peak voltage
+        delay(1);
     }
     peakVoltage = peakVoltage / 5;   
     voltageVirtualValue = peakVoltage * 0.707;  	//change the peak voltage to the Virtual Value of voltage
 
     /*The circuit is amplified by 2 times, so it is divided by 2.*/
-    voltageVirtualValue = (voltageVirtualValue * this->vref / 1024) / 2;  
+    voltageVirtualValue = (voltageVirtualValue * this->_vref / 1024) / 2;  
 
-    this->accurrtntValue = (voltageVirtualValue * ACTectionRange)/1000;
-
-    if(this->_handleExceed && this->accurrtntValue > this->_maxAccValue)
-    {
-        this->_handleExceed(this->accurrtntValue);
-    }
-    if(this->_handleLess && this->accurrtntValue < this->_minAccValue)
-    {
-        this->_handleLess(this->accurrtntValue);
-    }
-}
-
-float ACCurrent_S::getValue()
-{
-    return this->accurrtntValue;
+    this->_accurrtntValue = (voltageVirtualValue * ACTectionRange)/1000;
+    
 }

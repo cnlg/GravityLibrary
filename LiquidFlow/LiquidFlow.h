@@ -9,14 +9,9 @@ public:
      ~LiquidFlow();
 
 public:
-    void setPin(int pin);
-    void setup();
-    void update();
     double getValue();
     void setInterrupt(uint8_t interruptNum);
 
-private:
-    int _pin;
 };
 
 #endif

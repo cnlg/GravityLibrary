@@ -27,20 +27,18 @@ Version 1.0: 15 Dec 2016 by Jason<jason.ling@dfrobot.com@dfrobot.com>
 #include <SoftwareSerial.h>
 #include <arduino.h>
 
-typedef void (*pFunc)(float ppm);
 
 class DFRobotHCHOSensor
 {
 public:
     DFRobotHCHOSensor(HardwareSerial& hardwareSerial);	//read the uart signal by hardware uart,such as D0
     DFRobotHCHOSensor(SoftwareSerial& softwareSerial);	//read the uart signal by software uart,such as D10
-    DFRobotHCHOSensor(int pin,float ref);			//read the analog signal by analog input pin ,such as A2; ref:voltage on AREF pin
-    void  setup();
+    DFRobotHCHOSensor();			//read the analog signal by analog input pin ,such as A2; ref:voltage on AREF pin
+    void  setPin(uint8_t pin);
+    void  setRef(float ref);
+    void  setInterval(unsigned long interval);
     void  update();
-    float getPPM();
-    void setHandleM(pFunc handleM,float maxPPM);
-    void setHandleL(pFunc handleL,float minPPM);
-
+    float getValue();
 
 private:
     Stream *_Serial;
@@ -49,16 +47,12 @@ private:
     int   _pin;
     float _ref;
     float _ppm;
+    unsigned long _interval;
     const static int maxLength = 9;
     byte receivedCommandStack[maxLength];
     byte checkSum(byte array[],byte length);
 
-    pFunc _handleM;
-    pFunc _handleL;
-    float _maxPPM;
-    float _minPPM;
-
-
+    void execute();
     bool available();		//new data was recevied
     void uartReadPPM();		//get the concentration(ppm) by uart signal
     void dacReadPPM();		//get the concentration(ppm) by analog signal

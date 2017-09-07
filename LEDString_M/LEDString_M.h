@@ -19,7 +19,8 @@ class LEDString_M
     public:
     void setPin(uint8_t LightPin);
     void Brightness(uint8_t bright);
-    void breath(int speed);
+    void breath(int speed = 10);
+    void breath();
 
     private:
     uint8_t _LightPin;//Pin number of light string

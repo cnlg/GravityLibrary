@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include "GeneralDigitalSensor.h"
 
-GeneralDigitalSensor::GeneralDigitalSensor()
+GeneralDigitalSensor::GeneralDigitalSensor():_interval(0),_handleM(0),_handleL(0)
 {
-    this->_handleM = 0;
-    this->_handleL = 0;
-
 }
 
 GeneralDigitalSensor::~GeneralDigitalSensor()
 {
-
 }
 
 void GeneralDigitalSensor::setPin(uint8_t pin, uint8_t mode)
@@ -19,9 +15,9 @@ void GeneralDigitalSensor::setPin(uint8_t pin, uint8_t mode)
     pinMode(pin,mode);
 }
 
-uint8_t GeneralDigitalSensor::getValue()
+int GeneralDigitalSensor::getValue()
 {
-    return digitalRead(this->_pin);
+    return this->_value; 
 }
 
 void GeneralDigitalSensor::setValue(uint8_t value)
@@ -41,17 +37,22 @@ void GeneralDigitalSensor::setHandleL(pFunc handleL,int minValue)
     this->_minValue = minValue;
 }
 
-void GeneralDigitalSensor::update(unsigned long interval = 0)
+void GeneralDigitalSensor::setInterval(unsigned long interval)
 {
-    if(interval == 0)
-        this->_value = getValue();
-    else
+    this->_interval = interval;
+}
+
+void GeneralDigitalSensor::update()
+{
+    static unsigned long previous = millis();
+    if(this->_interval == 0)
     {
-        if(millis() - this->_lastTime >= interval)
-        {
-            this->_lastTime = millis();
-            this->_value = getValue();
-        }
+        this->_value = digitalRead(this->_pin);
+    }
+    else if(millis() - previous >= this->_interval) 
+    {
+        previous = millis();
+        this->_value = digitalRead(this->_pin);
     }
     handleCallback();
 }

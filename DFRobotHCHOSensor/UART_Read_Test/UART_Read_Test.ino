@@ -30,21 +30,16 @@ SoftwareSerial sensorSerial(SensorSerialRxPin,SensorSerialTxPin);
 
 DFRobotHCHOSensor hchoSensor(sensorSerial);
 
-void testHandle(float ppm)
-{}
-
 void setup()
 {  
     sensorSerial.begin(9600);	//the baudrate of HCHO is 9600
     sensorSerial.listen();
-    hchoSensor.setHandleM(testHandle,10);
-    hchoSensor.setHandleL(testHandle,5);
     Serial.begin(9600);
 }
 
 void loop()
 {
     hchoSensor.update();
-    Serial.print(hchoSensor.getPPM());
+    Serial.print(hchoSensor.getValue());
     Serial.println("ppm");
 }

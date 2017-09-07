@@ -21,7 +21,6 @@
 
 #include "pH.h"
 
-
 Ph::Ph():_pin(A2), _sum(0),_offset(0.0f), 
 _interval(30),_pHValue(0),_voltage(0)
 {
@@ -31,15 +30,11 @@ _interval(30),_pHValue(0),_voltage(0)
 // 函数名称: setup()
 // 函数说明：初始化ph传感器
 //********************************************************************************************
-void Ph::setup()
-{
-	pinMode(this->_pin, INPUT);
-}
-
 
 void Ph::setPin(int pin)
 {
-    this->_pin = pin;
+	this->_pin = pin;
+	pinMode(this->_pin, INPUT);
 }
 
 void Ph::setOffset(float offset)
@@ -47,16 +42,10 @@ void Ph::setOffset(float offset)
     this->_offset = offset;
 }
 
-void Ph::setHandleM(pFunc handleM, double maxPhValue)
-{
-    this->_handleM = handleM;
-    this->_maxPhValue = maxPhValue;
-}
 
-void Ph::setHandleL(pFunc handleL, double minPhValue)
+void Ph::setInterval(unsigned long interval)
 {
-    this->_handleL = handleL;
-    this->_minPhValue = minPhValue;
+	this->_interval = interval;
 }
 //********************************************************************************************
 // 函数名称: update()
@@ -64,12 +53,11 @@ void Ph::setHandleL(pFunc handleL, double minPhValue)
 //********************************************************************************************
 void Ph::update()
 {
-	static unsigned long samplingTime = millis();
-	static unsigned long printTime = millis();
+	static unsigned long previousTime = millis();
 	static int pHArrayIndex = 0;
-	if (millis() - samplingTime >this->_interval)
+	if (millis() - previousTime >= this->_interval)
 	{
-		samplingTime = millis();
+		previousTime = millis();
 		pHArray[pHArrayIndex++] = analogRead(this->_pin);
 
 		if (pHArrayIndex == arrayLength)  // 5*30 = 150ms计算一次
@@ -81,44 +69,18 @@ void Ph::update()
 			this->_sum = 0;
 			this->_voltage = this->_averageVoltage*5.0 / 1024.0;
 			this->_pHValue = 3.5*this->_voltage + this->_offset;
-		}	
-		
+		}			
 	}
 }
 
 
 //********************************************************************************************
 // 函数名称: getValue()
-// 函数说明：返回传感器数据
-//********************************************************************************************
+// 函数说明：获取传感器数据***********************************************
 double Ph::getValue()
 {
-	return this->_pHValue;
+    return this->_pHValue;
 }
-
-void Ph::handleCallback()
-{
-   if(this->_handleM && this->_pHValue > this->_maxPhValue) 
-   {
-       this->_handleM(this->_pHValue);
-   }
-   if(this->_handleL && this->_pHValue < this->_minPhValue)
-   {
-       this->_handleL(this->_pHValue);
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

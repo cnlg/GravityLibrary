@@ -46,7 +46,6 @@ static const float PT100Tab[] PROGMEM =
     , 243.64, 243.99, 244.33, 244.68, 245.02, 245.37, 245.71, 246.06, 246.4, 246.75
 };
 
-typedef void (*pFunc)(int temperature);
 
 class DFRobotHighTemperature
 {
@@ -55,23 +54,19 @@ public:
     ~DFRobotHighTemperature();			//Destructor
     void setPin(int pin);
     void setVoltageRef(float voltage);
+    void setInterval(unsigned long interval);
     void setup();
     void update();
     int  getValue();//Get temperature
-    void setHandleM(pFunc handleM,float maxTemperature);
-    void setHandleL(pFunc handleL,float minTemperature);
 
 private:
     int   _pin;
     int   _temperature;
     float _voltageRef;			//reference voltage
-    int   _maxTemperature;
-    int   _minTemperature;
-    pFunc _handleM;
-    pFunc _handleL;
+    unsigned long _interval;
 
     int comp(float pt, int i); //Which number is closer on the two adjacent numbers.
-    void handleCallback();
+    void execute();
 
 };
 #endif

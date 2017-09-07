@@ -2,7 +2,6 @@
 #define _ACCurrent_S_H_
 
 #define ACTectionRange 20
-typedef void (*HandleFunc)(float accValue);
 
 class ACCurrent_S
 {
@@ -15,18 +14,16 @@ public:
     void setup();
     void update();
     float getValue();
-    void setHandleExceed(HandleFunc handleExceed, float maxAccValue);
-    void setHandleLess(HandleFunc handleLess, float minAccValue);
-    
+    void setInterval(unsigned long interval);
+
 private:
-    HandleFunc _handleExceed = 0;
-    HandleFunc _handleLess = 0;
-    float _maxAccValue;
-    float _minAccValue;
     float readVref();
-    float vref;
-    int   acPin; 
-    float accurrtntValue; 
+    void  calculateAcc();
+    float _vref;
+    int   _pin; 
+    float _accurrtntValue; 
+    double _interval;
 };
 
 #endif
+

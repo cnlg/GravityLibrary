@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include "GeneralAnalogSensor.h"
 
-GeneralAnalogSensor::GeneralAnalogSensor():_lastTime(0)
+GeneralAnalogSensor::GeneralAnalogSensor():_interval(0),_handleM(0),_handleL(0)
 {
-    this->_handleM = 0;
-    this->_handleL = 0;
-
 }
 
 GeneralAnalogSensor::~GeneralAnalogSensor()
 {
-
 }
 
 void GeneralAnalogSensor::setPin(uint8_t pin, uint8_t mode)
@@ -21,12 +17,17 @@ void GeneralAnalogSensor::setPin(uint8_t pin, uint8_t mode)
 
 int GeneralAnalogSensor::getValue()
 {
-    return analogRead(this->_pin);
+    return this->_value; 
 }
 
 void GeneralAnalogSensor::setValue(int value)
 {
     analogWrite(this->_pin,value);
+}
+
+void GeneralAnalogSensor::setInterval(unsigned long interval)
+{
+    this->_interval = interval;
 }
 
 void GeneralAnalogSensor::setHandleL(pFunc handleL,int minvalue)
@@ -41,19 +42,17 @@ void GeneralAnalogSensor::setHandleM(pFunc handleM,int maxvalue)
     this->_maxValue = maxvalue;
 }
 
-void GeneralAnalogSensor::update(unsigned long interval = 0)
+void GeneralAnalogSensor::update()
 {
-    if(interval == 0)
+    static unsigned long previous = millis();
+    if(this->_interval == 0)
     {
-        this->_value = getValue();
+        this->_value = analogRead(this->_pin); 
     }
-    else
+    else if(millis() - previous >= this->_interval)
     {
-        if(millis() - this->_lastTime > interval)
-        {
-            this->_lastTime = millis();
-            this->_value = getValue();
-        }
+        previous = millis();
+        this->_value = analogRead(this->_pin); 
     }
     handleCallback();
 }
@@ -69,5 +68,4 @@ void GeneralAnalogSensor::handleCallback()
         this->_handleL(this->_value);
     }
 }
-
 

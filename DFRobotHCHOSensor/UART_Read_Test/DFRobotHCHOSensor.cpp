@@ -27,8 +27,7 @@ DFRobotHCHOSensor::DFRobotHCHOSensor(HardwareSerial& hardwareSerial)	//read the 
     this->_Serial = &hardwareSerial;
     this->_useUart = true;
     this->_useGeneralPin = false;
-    this->_handleM = 0;
-    this->_handleL = 0;
+    this->_interval = 0;
 }
 
 DFRobotHCHOSensor::DFRobotHCHOSensor(SoftwareSerial& softwareSerial)	//read the uart signal by software uart,such as D10
@@ -36,23 +35,31 @@ DFRobotHCHOSensor::DFRobotHCHOSensor(SoftwareSerial& softwareSerial)	//read the 
     this->_Serial = &softwareSerial;
     this->_useUart = true;
     this->_useGeneralPin = false;
-    this->_handleM = 0;
-    this->_handleL = 0;
+    this->_interval = 0;
 }
-DFRobotHCHOSensor:: DFRobotHCHOSensor(int pin,float ref)//read the analog signal by analog input pin ,such as A2; ref:voltage on AREF pin
+
+DFRobotHCHOSensor::DFRobotHCHOSensor()//read the analog signal by analog input pin ,such as A2; ref:voltage on AREF pin
 {
     this->_useUart = false;
     this->_useGeneralPin = true;
-    this->_pin = pin;
-    this->_ref = ref;											//for arduino uno ,the ref should be 5.0V(Typical)
-    this->_handleM = 0;
-    this->_handleL = 0;
+    this->_ref = 5;
+    this->_interval = 0;
 }
 
-void DFRobotHCHOSensor::setup()
+void DFRobotHCHOSensor::setPin(uint8_t pin)
 {
-    if(this->_useGeneralPin)
-        pinMode(this->_pin,INPUT);
+    this->_pin = pin;
+    pinMode(this->_pin,INPUT);
+}
+
+void DFRobotHCHOSensor::setRef(float ref)
+{
+    this->_ref = ref;											//for arduino uno ,the ref should be 5.0V(Typical)
+}
+
+void DFRobotHCHOSensor::setInterval(unsigned long interval)
+{
+    this->_interval = interval; 
 }
 byte DFRobotHCHOSensor::checkSum(byte array[],byte length)	
 {
@@ -86,7 +93,23 @@ bool DFRobotHCHOSensor::available()		//new data was recevied
     return 0;
 }
 
+
+
 void DFRobotHCHOSensor::update()
+{
+    static unsigned long previous = millis();
+    if(this->_interval == 0)
+    {
+        execute();
+    }
+    else if(millis() - previous > this->_interval)
+    {
+        previous = millis();
+        execute();
+    }
+}
+
+void DFRobotHCHOSensor::execute()
 {
     if(this->_useUart && available())
     {
@@ -96,17 +119,9 @@ void DFRobotHCHOSensor::update()
     {
         dacReadPPM();
     }
-    if(this->_handleM && this->_ppm > this->_maxPPM)
-    {
-        this->_handleM(this->_ppm);
-    }
-    if(this->_handleL && this->_ppm < this->_minPPM)
-    {
-        this->_handleL(this->_ppm);
-    }
 }
 
-float DFRobotHCHOSensor::getPPM()
+float DFRobotHCHOSensor::getValue()
 {
     return this->_ppm;
 }
@@ -117,17 +132,6 @@ void DFRobotHCHOSensor::uartReadPPM()
     this->_ppm = ppb / 1000.0;	//1ppb = 1000ppm
 }
  
-void DFRobotHCHOSensor::setHandleM(pFunc handleM,float maxPPM)
-{
-    this->_handleM = handleM;
-    this->_maxPPM = maxPPM;
-}
-
-void DFRobotHCHOSensor::setHandleL(pFunc handleL,float minPPM)
-{
-    this->_handleL = handleL;
-    this->_minPPM = minPPM;
-}
 
 void DFRobotHCHOSensor::dacReadPPM()
 {

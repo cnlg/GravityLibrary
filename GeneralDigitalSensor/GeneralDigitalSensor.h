@@ -9,22 +9,23 @@ public:
     GeneralDigitalSensor();
     ~GeneralDigitalSensor();
 public:
-    void    setPin(uint8_t pin, uint8_t mode);
-    void    setValue(uint8_t value);
-    uint8_t getValue();
-    void    update(unsigned long interval = 0);
-    void    setHandleM(pFunc handleM,int maxValue);
-    void    setHandleL(pFunc handleL,int minValue);
+    void setPin(uint8_t pin, uint8_t mode);
+    void setValue(uint8_t value);
+    int  getValue();
+    void update();
+    void setInterval(unsigned long interval);
+    void setHandleM(pFunc handleM,int maxValue);
+    void setHandleL(pFunc handleL,int minValue);
    
 
 private:
     uint8_t _pin;
-    uint8_t _value;
+    int     _value;
     pFunc _handleM;
     pFunc _handleL;
     int _maxValue;
     int _minValue;
-    unsigned long _lastTime;
+    unsigned long _interval;
 
     void handleCallback();
     

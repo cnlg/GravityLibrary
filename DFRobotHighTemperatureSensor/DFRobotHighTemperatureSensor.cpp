@@ -25,15 +25,10 @@ Version 1.0: 13 Jan 2016 by bernie
 
 DFRobotHighTemperature::DFRobotHighTemperature():_voltageRef(5.000)  //Constructor,Default reference voltage 5.000
 {
-    this->_handleM = 0;
-    this->_handleL = 0;
-
 }
-
 
 DFRobotHighTemperature::~DFRobotHighTemperature()		//Destructor
 {
-	
 }
 
 void DFRobotHighTemperature::setPin(int pin)
@@ -57,19 +52,35 @@ int DFRobotHighTemperature::getValue()
     return this->_temperature;
 }
 
-void DFRobotHighTemperature::setHandleM(pFunc handleM,float maxTemperature)
-{
-   this->_handleM = handleM;
-   this->_maxTemperature = maxTemperature; 
-}
 
-void DFRobotHighTemperature::setHandleL(pFunc handleL,float minTemperature)
+void DFRobotHighTemperature::setInterval(unsigned long interval)
 {
-   this->_handleL = handleL;
-   this->_maxTemperature = minTemperature; 
+    this->_interval = interval;
 }
 
 void DFRobotHighTemperature::update()     //Get temperature
+{
+    static unsigned long previous = millis();
+    if(this->_interval == 0)
+    {
+        execute();
+    }
+    else if(millis() - previous >= this->_interval)
+    {
+        previous = millis();
+        execute();
+    }
+}
+
+int DFRobotHighTemperature::comp(float pt, int i) //Which number is closer on the two adjacent numbers.
+{
+    if ((pt - pgm_read_float(&PT100Tab[i])) > (pgm_read_float(&PT100Tab[i + 1]) - pgm_read_float(&PT100Tab[i])) / 2 )
+        return i + 1;
+    else
+        return i;
+}
+
+void DFRobotHighTemperature::execute()
 {
     float voltage = 0;
     float res = 0;
@@ -85,44 +96,25 @@ void DFRobotHighTemperature::update()     //Get temperature
 	//searched by the halving method
     mid = (front + end) / 2;
     while (front < end && pgm_read_float(&PT100Tab[mid]) != res)  
-        {
-            if (pgm_read_float(&PT100Tab[mid]) < res)
-                if (pgm_read_float(&PT100Tab[mid + 1]) < res)
-                    front = mid + 1;
-                else
-                    {
-                        mid = comp(res, mid);
-                        return mid;
-                    }
-            if (pgm_read_float(&PT100Tab[mid]) > res)
-                if (pgm_read_float(&PT100Tab[mid - 1]) > res)
-                    end = mid - 1;
-                else
-                    {
-                        mid = comp(res, mid - 1);
-                        return mid;
-                    }
-            mid = front + (end - front) / 2;
-        }
+    {
+        if (pgm_read_float(&PT100Tab[mid]) < res)
+            if (pgm_read_float(&PT100Tab[mid + 1]) < res)
+                front = mid + 1;
+            else
+                {
+                    mid = comp(res, mid);
+                    return mid;
+                }
+        if (pgm_read_float(&PT100Tab[mid]) > res)
+            if (pgm_read_float(&PT100Tab[mid - 1]) > res)
+                end = mid - 1;
+            else
+                {
+                    mid = comp(res, mid - 1);
+                    return mid;
+                }
+        mid = front + (end - front) / 2;
+    }
     this->_temperature = mid;
-    handleCallback();
-}
-int DFRobotHighTemperature::comp(float pt, int i) //Which number is closer on the two adjacent numbers.
-{
-    if ((pt - pgm_read_float(&PT100Tab[i])) > (pgm_read_float(&PT100Tab[i + 1]) - pgm_read_float(&PT100Tab[i])) / 2 )
-        return i + 1;
-    else
-        return i;
 }
 
-void DFRobotHighTemperature::handleCallback()
-{
-    if(this->_handleM && this->_temperature > this->_maxTemperature)
-    {
-        this->_handleM(this->_temperature);
-    }
-    if(this->_handleL && this->_temperature < this->_minTemperature)
-    {
-        this->_handleL(this->_temperature);
-    }
-}

@@ -23,8 +23,6 @@
 
 #include <Arduino.h>
 
-typedef void (*pFunc)(double pHValue);
-
 class Ph
 {
 public:
@@ -34,16 +32,14 @@ public:
 public:
     void setPin(int pin);
     void setOffset(float offset);
-    //初始化
-    void setup();
+    //设置刷新时间，默认时间30ms
+    void setInterval(unsigned long interval);
 
     //更新传感器数据
     void update();
 
     //获取传感器数据
     double getValue();
-    void setHandleM(pFunc handleM, double maxPhValue);
-    void setHandleL(pFunc handleL, double minPhValue);
 
 private:
     //ph传感器引脚
@@ -54,16 +50,12 @@ private:
     int    _interval;   
 	double _pHValue;
     double _voltage;
-	double _averageVoltage;
+    double _averageVoltage;
 
-    pFunc _handleM = 0;
-    pFunc _handleL = 0;
-    double _maxPhValue;
-    double _minPhValue;
-    
     static const int arrayLength = 5;
     int pHArray[arrayLength];   //储存传感器返回数据的平均值 
-    void handleCallback();
 };
 
 #endif
+
+   
