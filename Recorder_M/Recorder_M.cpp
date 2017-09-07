@@ -26,3 +26,4 @@ void Recorder_M::play()
     digitalWrite(this->_playPin,HIGH);
     delay(1000);
 }
+

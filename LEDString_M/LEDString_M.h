@@ -27,6 +27,6 @@ class LEDString_M
     uint8_t _bright;//0-255, larger the number, brighter the light 
     int _speed;//miliseconds needs per step during brightness change
 
-}
+};
 
 #endif

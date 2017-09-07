@@ -5,6 +5,9 @@
  Company:	DFRobot
 */
 
+#ifndef _RECORDER_M_
+#define _RECORDER_M_
+
 #include "Arduino.h"
 
 class Recorder_M
@@ -21,3 +24,5 @@ class Recorder_M
     uint8_t _playPin;
 
 }
+
+#endif

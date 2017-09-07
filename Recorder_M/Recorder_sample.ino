@@ -7,12 +7,14 @@
 
 #include "Recorder_M.h"
 
+Recorder_M recoder;
+
 void setup()
 {
-    setPin(2);
+    recoder.setPin(2);
 }
 
 void loop()
 {
-    play();
+    recoder.play();
 }
